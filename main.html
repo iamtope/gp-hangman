@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hangman Game</title>
+    <link rel="stylesheet" href="/main.css" />
+  </head>
+  <body>
+    <h1 class="hangman">Hangman Game</h1>
+    <div class="page">
+    <div id="word-display">{{.word}}</div>
+    <div id="wrong-guesses">Wrong Guesses: {{.wrongGuesses}}</div>
+    <form id="guess-form">
+      <input
+        class="guess-input"
+        type="text"
+        id="letter-input"
+        name="letter"
+        placeholder="Guess a letter"
+      />
+      <div>
+        <button class="submit-button" type="submit">Submit</button>
+      </div>
+    </form>
+  </div>
+    <script>
+      const form = document.getElementById("guess-form");
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const letter = document.getElementById("letter-input").value;
+        fetch("/hangman", {
+          method: "POST",
+          body: JSON.stringify({ letter }),
+          headers: { "Content-Type": "application/json" },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.gameOver) {
+              document.getElementById("game-over").style.display = "block";
+              document.getElementById("guess-form").style.display = "none";
+            } else {
+              document.getElementById("word-display").innerHTML = data.word;
+              document.getElementById(
+                "wrong-guesses"
+              ).innerHTML = `Wrong guesses: ${data.wrongGuesses}`;
+            }
+            document.getElementById("letter-input").value = ""; // Clear input box
+          })
+          .catch((error) => {
+            alert(error);
+          });
+      });
+    </script>
+  </body>
+</html>
